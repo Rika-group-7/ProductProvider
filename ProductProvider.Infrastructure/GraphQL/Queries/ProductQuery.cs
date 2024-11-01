@@ -3,14 +3,9 @@ using ProductProvider.Infrastructure.Services;
 
 namespace ProductProvider.Infrastructure.GraphQL.Queries;
 
-public class ProductQuery
+public class ProductQuery(IProductService productService)
 {
-    private readonly IProductService _productService;
-
-    public ProductQuery(IProductService productService)
-    {
-        _productService = productService;
-    }
+    private readonly IProductService _productService = productService;
 
     [GraphQLName("getProducts")]
     public async Task<IEnumerable<Product>> GetProductsAsync()

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProductProvider.Infrastructure.Data.Entities;
 
 namespace ProductProvider.Infrastructure.Data.Context;
 
@@ -13,6 +14,8 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
         if (!optionsBuilder.IsConfigured)
         {
             optionsBuilder.UseLazyLoadingProxies();
+            optionsBuilder.EnableSensitiveDataLogging();
+
         }
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -20,21 +23,26 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
         modelBuilder.Entity<ProductEntity>().ToContainer("Products");
         modelBuilder.Entity<ProductEntity>().HasKey(p => p.Id);
 
+        // Configure Categories as owned entities without cascade delete
         modelBuilder.Entity<ProductEntity>()
             .OwnsMany(p => p.Categories, cb =>
             {
-                cb.HasKey(c => c.Id);  
+                cb.HasKey(c => c.Id);
                 cb.OwnsMany(c => c.SubCategories, scb =>
                 {
-                    scb.HasKey(sc => sc.Id); 
+                    scb.HasKey(sc => sc.Id);
                 });
             });
 
+        // Configure Materials as owned entities without cascade delete
         modelBuilder.Entity<ProductEntity>().OwnsMany(p => p.Materials, mb =>
         {
-            mb.HasKey(m => m.Id);  
+            mb.HasKey(m => m.Id);
         });
+
+        // Remove unsupported configuration options for Cosmos DB
     }
+
 
 
 

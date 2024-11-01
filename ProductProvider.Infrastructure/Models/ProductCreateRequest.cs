@@ -14,18 +14,19 @@ public class ProductCreateRequest
     public decimal Ratings { get; set; }
     public string? ProductImage { get; set; }
 
-    public List<CategoryCreateRequest>? Categories { get; set; } = new(); 
-    public List<MaterialCreateRequest>? Materials { get; set; } = new();  
+    public List<CategoryCreateRequest>? Categories { get; set; } = new();
+    public List<MaterialCreateRequest>? Materials { get; set; } = new();
 
-public class CategoryCreateRequest
-{
-    public string? Id { get; set; }
-    public string? CategoryName { get; set; }
-    public List<CategoryCreateRequest>? SubCategories { get; set; } = new();
-}
+    public class CategoryCreateRequest
+    {
+        public string? Id { get; set; }
+        public string? CategoryName { get; set; }
+        public List<CategoryCreateRequest>? SubCategories { get; set; } = new();
+    }
 
-public class MaterialCreateRequest
-{
-    public string? Id { get; set; }
-    public string? MaterialName { get; set; }
+    public class MaterialCreateRequest
+    {
+        public string? Id { get; set; }
+        public string? MaterialName { get; set; }
+    }
 }

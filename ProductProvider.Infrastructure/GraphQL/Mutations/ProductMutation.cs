@@ -3,14 +3,9 @@ using ProductProvider.Infrastructure.Services;
 
 namespace ProductProvider.Infrastructure.GraphQL.Mutations;
 
-public class ProductMutation
+public class ProductMutation(IProductService productService)
 {
-    private readonly IProductService _productService;
-
-    public ProductMutation(IProductService productService)
-    {
-        _productService = productService;
-    }
+    private readonly IProductService _productService = productService;
 
     [GraphQLName("createProduct")]
     public async Task<Product> CreateProductAsync(ProductCreateRequest input)

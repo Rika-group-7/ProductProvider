@@ -13,15 +13,15 @@ public class ProductUpdateRequest
     public decimal Ratings { get; set; }
     public string? ProductImage { get; set; }
 
-    public List<CategoryUpdateRequest>? Categories { get; set; } = new(); 
-    public List<MaterialUpdateRequest>? Materials { get; set; } = new();  
+    public List<CategoryUpdateRequest>? Categories { get; set; } = []; 
+    public List<MaterialUpdateRequest>? Materials { get; set; } = [];  
 }
 
 public class CategoryUpdateRequest
 {
     public string? Id { get; set; }
     public string? CategoryName { get; set; }
-    public List<CategoryUpdateRequest>? SubCategories { get; set; } = new();
+    public List<CategoryUpdateRequest>? SubCategories { get; set; } = [];
 }
 public class MaterialUpdateRequest
 {

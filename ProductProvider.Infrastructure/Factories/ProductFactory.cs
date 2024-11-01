@@ -1,4 +1,5 @@
-﻿using ProductProvider.Infrastructure.Models;
+﻿using ProductProvider.Infrastructure.Data.Entities;
+using ProductProvider.Infrastructure.Models;
 
 namespace ProductProvider.Infrastructure.Factories;
 
@@ -44,7 +45,7 @@ public static class ProductFactory
     {
         return new ProductEntity
         {
-            Id = request.ProductID,
+            Id = request.Id!,
             Title = request.Title,
             Brand = request.Brand,
             Size = request.Size,

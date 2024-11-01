@@ -14,8 +14,8 @@ public class Product
     public decimal Ratings { get; set; }
     public string? ProductImage { get; set; }
 
-    public List<Category>? Categories { get; set; } = new();
-    public List<Material>? Materials { get; set; } = new();
+    public List<Category>? Categories { get; set; } = [];
+    public List<Material>? Materials { get; set; } = [];
 }
 
 public class Category
@@ -23,7 +23,7 @@ public class Category
     public string? Id { get; set; }
     public string? CategoryName { get; set; }
 
-    public List<Category>? SubCategories { get; set; } = new();
+    public List<Category>? SubCategories { get; set; } = [];
 }
 
 public class Material

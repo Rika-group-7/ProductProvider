@@ -16,16 +16,10 @@ namespace ProductProvider.Infrastructure.Services
         Task<bool> DeleteProductAsync(string id);
     }
 
-    public class ProductService : IProductService
+    public class ProductService(IDbContextFactory<DataContext> contextFactory, ILogger<ProductService> logger) : IProductService
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
-        private readonly ILogger<ProductService> _logger;
-
-        public ProductService(IDbContextFactory<DataContext> contextFactory, ILogger<ProductService> logger)
-        {
-            _contextFactory = contextFactory;
-            _logger = logger;
-        }
+        private readonly IDbContextFactory<DataContext> _contextFactory = contextFactory;
+        private readonly ILogger<ProductService> _logger = logger;
 
         public async Task<Product> CreateProductAsync(ProductCreateRequest request)
         {
@@ -90,10 +84,10 @@ namespace ProductProvider.Infrastructure.Services
             await using var context = _contextFactory.CreateDbContext();
             try
             {
-                var existingProduct = await context.Products.FirstOrDefaultAsync(p => p.Id == request.ProductID);
+                var existingProduct = await context.Products.FirstOrDefaultAsync(p => p.Id == request.Id);
                 if (existingProduct == null)
                 {
-                    _logger.LogWarning($"Product with Id {request.ProductID} not found for update");
+                    _logger.LogWarning($"Product with Id {request.Id} not found for update");
                     return null!;
                 }
 
@@ -107,7 +101,7 @@ namespace ProductProvider.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error updating product with ID {request.ProductID}: {ex.Message}");
+                _logger.LogError($"Error updating product with ID {request.Id}: {ex.Message}");
                 throw;
             }
         }
@@ -117,23 +111,34 @@ namespace ProductProvider.Infrastructure.Services
             await using var context = _contextFactory.CreateDbContext();
             try
             {
-                var productEntity = await context.Products.FirstOrDefaultAsync(p => p.Id == id);
-                if (productEntity == null)
+                var product = await context.Products
+                    .AsNoTracking()  // Avoid tracking for better compatibility with Cosmos DB
+                    .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (product == null)
                 {
-                    _logger.LogWarning($"Product with Id {id} not found for deletion");
+                    _logger.LogInformation($"Product with ID: {id} not found.");
                     return false;
                 }
 
-                context.Products.Remove(productEntity);
+                // Clear owned entities to prevent tracking conflicts
+                product.Categories = null;
+                product.Materials = null;
+
+                context.Products.Remove(product);
                 await context.SaveChangesAsync();
-                _logger.LogInformation($"Product with ID {id} deleted successfully.");
+
+                _logger.LogInformation($"Product deleted successfully with ID: {id}");
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error deleting product with ID {id}: {ex.Message}");
+                _logger.LogError($"Error deleting product with ID: {id} - {ex.Message}");
                 throw;
             }
         }
+
+
+
     }
 }
