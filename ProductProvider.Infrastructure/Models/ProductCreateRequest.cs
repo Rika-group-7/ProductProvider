@@ -2,7 +2,7 @@
 
 public class ProductCreateRequest
 {
-    public string? ProductID { get; set; } // Add this line if ID should be passed in the create request
+    public string? Id { get; set; }
     public string? Title { get; set; }
     public string? Brand { get; set; }
     public string? Size { get; set; }
@@ -14,18 +14,18 @@ public class ProductCreateRequest
     public decimal Ratings { get; set; }
     public string? ProductImage { get; set; }
 
-    public List<CategoryCreateRequest>? Categories { get; set; }
-    public List<MaterialCreateRequest>? Materials { get; set; }
-}
+    public List<CategoryCreateRequest>? Categories { get; set; } = new(); 
+    public List<MaterialCreateRequest>? Materials { get; set; } = new();  
 
 public class CategoryCreateRequest
 {
-    public string? CategoryID { get; set; }
+    public string? Id { get; set; }
     public string? CategoryName { get; set; }
+    public List<CategoryCreateRequest>? SubCategories { get; set; } = new();
 }
 
 public class MaterialCreateRequest
 {
-    public string? MaterialID { get; set; }
+    public string? Id { get; set; }
     public string? MaterialName { get; set; }
 }

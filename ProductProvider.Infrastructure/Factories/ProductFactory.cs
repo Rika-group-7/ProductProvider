@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using ProductProvider.Infrastructure.Data.Entities;
-using ProductProvider.Infrastructure.Models;
+﻿using ProductProvider.Infrastructure.Models;
 
 namespace ProductProvider.Infrastructure.Factories;
 
@@ -10,7 +8,7 @@ public static class ProductFactory
     {
         return new ProductEntity
         {
-            ProductID = request.ProductID ?? Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid().ToString(),
             Title = request.Title,
             Brand = request.Brand,
             Size = request.Size,
@@ -21,12 +19,22 @@ public static class ProductFactory
             SKU = request.SKU,
             Ratings = request.Ratings,
             ProductImage = request.ProductImage,
+
+            // Directly map Categories and Materials as collections
             Categories = request.Categories?.Select(c => new CategoryEntity
             {
-                CategoryName = c.CategoryName
+                Id = c.Id ?? Guid.NewGuid().ToString(),
+                CategoryName = c.CategoryName,
+                SubCategories = c.SubCategories?.Select(sc => new CategoryEntity
+                {
+                    Id = sc.Id ?? Guid.NewGuid().ToString(),
+                    CategoryName = sc.CategoryName
+                }).ToList() ?? new List<CategoryEntity>()
             }).ToList() ?? new List<CategoryEntity>(),
+
             Materials = request.Materials?.Select(m => new MaterialEntity
             {
+                Id = m.Id ?? Guid.NewGuid().ToString(),
                 MaterialName = m.MaterialName
             }).ToList() ?? new List<MaterialEntity>()
         };
@@ -36,7 +44,7 @@ public static class ProductFactory
     {
         return new ProductEntity
         {
-            ProductID = request.ProductID,
+            Id = request.ProductID,
             Title = request.Title,
             Brand = request.Brand,
             Size = request.Size,
@@ -47,14 +55,21 @@ public static class ProductFactory
             SKU = request.SKU,
             Ratings = request.Ratings,
             ProductImage = request.ProductImage,
+
             Categories = request.Categories?.Select(c => new CategoryEntity
             {
-                CategoryID = c.CategoryID != null ? int.Parse(c.CategoryID) : 0,
-                CategoryName = c.CategoryName
+                Id = c.Id ?? Guid.NewGuid().ToString(),
+                CategoryName = c.CategoryName,
+                SubCategories = c.SubCategories?.Select(sc => new CategoryEntity
+                {
+                    Id = sc.Id ?? Guid.NewGuid().ToString(),
+                    CategoryName = sc.CategoryName
+                }).ToList() ?? new List<CategoryEntity>()
             }).ToList() ?? new List<CategoryEntity>(),
+
             Materials = request.Materials?.Select(m => new MaterialEntity
             {
-                MaterialID = m.MaterialID != null ? int.Parse(m.MaterialID) : 0,
+                Id = m.Id ?? Guid.NewGuid().ToString(),
                 MaterialName = m.MaterialName
             }).ToList() ?? new List<MaterialEntity>()
         };
@@ -64,7 +79,7 @@ public static class ProductFactory
     {
         return new Product
         {
-            ProductID = entity.ProductID,
+            Id = entity.Id,
             Title = entity.Title,
             Brand = entity.Brand,
             Size = entity.Size,
@@ -77,14 +92,20 @@ public static class ProductFactory
             ProductImage = entity.ProductImage,
             Categories = entity.Categories?.Select(c => new Category
             {
-                CategoryID = c.CategoryID,
-                CategoryName = c.CategoryName
+                Id = c.Id,
+                CategoryName = c.CategoryName,
+                SubCategories = c.SubCategories?.Select(sc => new Category
+                {
+                    Id = sc.Id,
+                    CategoryName = sc.CategoryName
+                }).ToList()
             }).ToList(),
             Materials = entity.Materials?.Select(m => new Material
             {
-                MaterialID = m.MaterialID,
+                Id = m.Id,
                 MaterialName = m.MaterialName
             }).ToList()
         };
     }
+
 }

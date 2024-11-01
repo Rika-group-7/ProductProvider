@@ -1,13 +1,10 @@
-﻿using ProductProvider.Infrastructure.Data.Entities;
-using HotChocolate.Types;
-
-namespace ProductProvider.Infrastructure.GraphQL.ObjectType;
+﻿namespace ProductProvider.Infrastructure.GraphQL.ObjectType;
 
 public class ProductType : ObjectType<ProductEntity>
 {
     protected override void Configure(IObjectTypeDescriptor<ProductEntity> descriptor)
     {
-        descriptor.Field(p => p.ProductID).Type<NonNullType<IdType>>();
+        descriptor.Field(p => p.Id).Type<NonNullType<IdType>>(); // Primary key for Cosmos DB
         descriptor.Field(p => p.Title).Type<StringType>();
         descriptor.Field(p => p.Brand).Type<StringType>();
         descriptor.Field(p => p.Size).Type<StringType>();
@@ -18,16 +15,19 @@ public class ProductType : ObjectType<ProductEntity>
         descriptor.Field(p => p.SKU).Type<StringType>();
         descriptor.Field(p => p.Ratings).Type<DecimalType>();
         descriptor.Field(p => p.ProductImage).Type<StringType>();
-        descriptor.Field(p => p.Categories).Type<ListType<CategoryType>>();
-        descriptor.Field(p => p.Materials).Type<ListType<MaterialType>>();
+
+        // Directly reference Categories and Materials without intermediate classes
+        descriptor.Field(p => p.Categories).Type<ListType<CategoryType>>().Name("categories");
+        descriptor.Field(p => p.Materials).Type<ListType<MaterialType>>().Name("materials");
     }
 
     public class CategoryType : ObjectType<CategoryEntity>
     {
         protected override void Configure(IObjectTypeDescriptor<CategoryEntity> descriptor)
         {
-            descriptor.Field(c => c.CategoryID).Type<NonNullType<IntType>>();
+            descriptor.Field(c => c.Id).Type<NonNullType<IdType>>(); // Adjusted for Cosmos DB
             descriptor.Field(c => c.CategoryName).Type<StringType>();
+            descriptor.Field(c => c.SubCategories).Type<ListType<CategoryType>>();
         }
     }
 
@@ -35,7 +35,7 @@ public class ProductType : ObjectType<ProductEntity>
     {
         protected override void Configure(IObjectTypeDescriptor<MaterialEntity> descriptor)
         {
-            descriptor.Field(m => m.MaterialID).Type<NonNullType<IntType>>();
+            descriptor.Field(m => m.Id).Type<NonNullType<IdType>>(); // Adjusted for Cosmos DB
             descriptor.Field(m => m.MaterialName).Type<StringType>();
         }
     }

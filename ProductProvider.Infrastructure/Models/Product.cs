@@ -2,7 +2,7 @@
 
 public class Product
 {
-    public string? ProductID { get; set; }
+    public string? Id { get; set; } 
     public string? Title { get; set; }
     public string? Brand { get; set; }
     public string? Size { get; set; }
@@ -14,19 +14,20 @@ public class Product
     public decimal Ratings { get; set; }
     public string? ProductImage { get; set; }
 
-    public virtual List<Category>? Categories { get; set; }
-    public virtual List<Material>? Materials { get; set; }
+    public List<Category>? Categories { get; set; } = new();
+    public List<Material>? Materials { get; set; } = new();
 }
 
 public class Category
 {
-    public int CategoryID { get; set; }
+    public string? Id { get; set; }
     public string? CategoryName { get; set; }
-    public int? ParentCategoryID { get; set; }
+
+    public List<Category>? SubCategories { get; set; } = new();
 }
 
 public class Material
 {
-    public int MaterialID { get; set; }
+    public string? Id { get; set; }
     public string? MaterialName { get; set; }
 }

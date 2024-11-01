@@ -1,20 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace ProductProvider.Infrastructure.Data.Entities;
+﻿using System.ComponentModel.DataAnnotations;
 
 public class CategoryEntity
 {
     [Key]
-    public int CategoryID { get; set; }
-
-    public string CategoryName { get; set; } = null!;
-
-    public int? ParentCategoryID { get; set; }
-
-    [ForeignKey("ParentCategoryID")]
-    public CategoryEntity? ParentCategory { get; set; }
-
-    public ICollection<CategoryEntity> SubCategories { get; set; } = [];
-    public ICollection<ProductEntity> Products { get; set; } = [];
+    public string Id { get; set; } = Guid.NewGuid().ToString();  // Unique ID for each category
+    public string? CategoryName { get; set; }
+    public virtual List<CategoryEntity>? SubCategories { get; set; } = new(); // Embed subcategories as a nested list with unique IDs
 }
