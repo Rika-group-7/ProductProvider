@@ -23,7 +23,6 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
         modelBuilder.Entity<ProductEntity>().ToContainer("Products");
         modelBuilder.Entity<ProductEntity>().HasKey(p => p.Id);
 
-        // Configure Categories as owned entities without cascade delete
         modelBuilder.Entity<ProductEntity>()
             .OwnsMany(p => p.Categories, cb =>
             {
@@ -34,13 +33,10 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
                 });
             });
 
-        // Configure Materials as owned entities without cascade delete
         modelBuilder.Entity<ProductEntity>().OwnsMany(p => p.Materials, mb =>
         {
             mb.HasKey(m => m.Id);
         });
-
-        // Remove unsupported configuration options for Cosmos DB
     }
 
 
