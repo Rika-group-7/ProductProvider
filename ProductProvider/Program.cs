@@ -15,7 +15,6 @@ var host = new HostBuilder()
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
 
-        // Use the full connection string in COSMOS_URI and the database name in COSMOS_DB
         services.AddPooledDbContextFactory<DataContext>(x =>
             x.UseCosmos(Environment.GetEnvironmentVariable("COSMOS_URI")!, Environment.GetEnvironmentVariable("COSMOS_DB")!)
              .UseLazyLoadingProxies());
