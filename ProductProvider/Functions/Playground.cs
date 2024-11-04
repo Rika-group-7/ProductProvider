@@ -18,7 +18,7 @@ public class Playground
     }
 
     [Function("Playground")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "playground")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "graphql")] HttpRequestData req)
     {
         var response = req.CreateResponse();
         response.Headers.Add("Content-type", "text/html; charset=utf-8");
