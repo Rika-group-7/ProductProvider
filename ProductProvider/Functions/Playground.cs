@@ -47,7 +47,7 @@ public class Playground
                     <script>
                     window.addEventListener('load', function(event) {
                             GraphQLPlayground.init(document.getElementById('root'), {
-                            endpoint: '/api/graphql'
+                            endpoint: 'https://productprovider-rika.azurewebsites.net/api/graphql'
                             })
                         })
                     </script>
