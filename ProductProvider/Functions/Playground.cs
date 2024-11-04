@@ -20,6 +20,7 @@ public class Playground
     [Function("Playground")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "graphql")] HttpRequestData req)
     {
+        _logger.LogInformation("HTTP Method: " + req.Method);
         var response = req.CreateResponse();
         response.Headers.Add("Content-type", "text/html; charset=utf-8");
         await response.WriteStringAsync(Playgroundpage());
