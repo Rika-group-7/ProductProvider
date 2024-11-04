@@ -12,7 +12,7 @@ public class GraphQL(ILogger<GraphQL> logger, IGraphQLRequestExecutor executor)
 
     [Function("GraphQL")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "graphql")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "graphql")] HttpRequest req)
     {
         _logger.LogInformation("Executing 'GraphQL' function with invocation ID: {InvocationId}", req.HttpContext.TraceIdentifier);
 
