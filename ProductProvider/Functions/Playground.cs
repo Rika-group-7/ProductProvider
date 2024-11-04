@@ -1,68 +1,52 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
-namespace ProductProvider.Functions
+namespace ProductProvider.Functions;
+
+public class Playground
 {
-    public class Playground
+    private readonly ILogger<Playground> _logger;
+
+    public Playground(ILogger<Playground> logger)
     {
-        private readonly ILogger<Playground> _logger;
+        _logger = logger;
+    }
 
-        public Playground(ILogger<Playground> logger)
-        {
-            _logger = logger;
-        }
+    [Function("Playground")]
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "graphql")] HttpRequestData req)
+    {
+        var response = req.CreateResponse();
+        response.Headers.Add("Content-type", "text/html; charset=utf-8");
+        await response.WriteStringAsync(Playgroundpage());
+        return response;
 
-        [Function("Playground")]
-        public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "playground")] HttpRequestData req)
-        {
-            _logger.LogInformation("Playground function invoked.");
+    }
 
-            try
-            {
-                var response = req.CreateResponse();
-                response.Headers.Add("Content-Type", "text/html; charset=utf-8");
+    private string Playgroundpage()
+    {
 
-                string htmlContent = GeneratePlaygroundPage();
-                await response.WriteStringAsync(htmlContent);
 
-                _logger.LogInformation("Playground page served successfully.");
-                return response;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while serving the Playground page.");
-                var errorResponse = req.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
-                await errorResponse.WriteStringAsync("An internal server error occurred.");
-                return errorResponse;
-            }
-        }
-
-        private string GeneratePlaygroundPage()
-        {
-            _logger.LogDebug("Generating GraphQL Playground HTML content.");
-
-            return @"
+        return @"
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>HotChocolate GraphQL Playground</title>
-                    <link rel=""stylesheet"" href=""https://cdn.jsdelivr.net/npm/graphql-playground-react/build/static/css/index.css"" />
-                    <link rel=""shortcut icon"" href=""https://cdn.jsdelivr.net/npm/graphql-playground-react/build/favicon.png"" />
-                    <script src=""https://cdn.jsdelivr.net/npm/graphql-playground-react/build/static/js/middleware.js""></script>
-                </head>
+                <title>HotChocolate GraphQL Playground</title>
+                <link rel="" stylesheet"" href=""https://cdn.jsdelivr.net/npm/graphql-playground-react/build/static/css/index.css"" />
+                <link rel=""shortcut icon"" href = ""https://cdn.jsdelivr.net/npm/graphql-playground-react/build/favicon.png"" />
+                <script src = ""https://cdn.jsdelivr.net/npm/graphql-playground-react/build/static/js/middleware.js""></script>
+                </head> 
                 <body>
-                    <div id=""root""></div>
+                    <div id =""root""></div>
                     <script>
-                        window.addEventListener('load', function(event) {
+                    window.addEventListener('load', function(event) {
                             GraphQLPlayground.init(document.getElementById('root'), {
-                                endpoint: '/api/graphql'
+                            endpoint: '/api/graphql'
                             })
                         })
                     </script>
                 </body>
                 </html>";
-        }
+
     }
 }
