@@ -20,7 +20,6 @@ public class Product
 
 public class Category
 {
-    public string? Id { get; set; }
     public string? CategoryName { get; set; }
 
     public List<Category>? SubCategories { get; set; } = [];
@@ -28,6 +27,5 @@ public class Category
 
 public class Material
 {
-    public string? Id { get; set; }
     public string? MaterialName { get; set; }
 }

@@ -20,57 +20,17 @@ public static class ProductFactory
             SKU = request.SKU,
             Ratings = request.Ratings,
             ProductImage = request.ProductImage,
-
-            // Directly map Categories and Materials as collections
             Categories = request.Categories?.Select(c => new CategoryEntity
             {
-                Id = c.Id ?? Guid.NewGuid().ToString(),
                 CategoryName = c.CategoryName,
                 SubCategories = c.SubCategories?.Select(sc => new CategoryEntity
                 {
-                    Id = sc.Id ?? Guid.NewGuid().ToString(),
-                    CategoryName = sc.CategoryName
+                    CategoryName = sc.CategoryName,
+                    SubCategories = new List<CategoryEntity>()
                 }).ToList() ?? new List<CategoryEntity>()
             }).ToList() ?? new List<CategoryEntity>(),
-
             Materials = request.Materials?.Select(m => new MaterialEntity
             {
-                Id = m.Id ?? Guid.NewGuid().ToString(),
-                MaterialName = m.MaterialName
-            }).ToList() ?? new List<MaterialEntity>()
-        };
-    }
-
-    public static ProductEntity Update(ProductUpdateRequest request)
-    {
-        return new ProductEntity
-        {
-            Id = request.Id!,
-            Title = request.Title,
-            Brand = request.Brand,
-            Size = request.Size,
-            Color = request.Color,
-            Price = request.Price,
-            Description = request.Description,
-            StockStatus = request.StockStatus,
-            SKU = request.SKU,
-            Ratings = request.Ratings,
-            ProductImage = request.ProductImage,
-
-            Categories = request.Categories?.Select(c => new CategoryEntity
-            {
-                Id = c.Id ?? Guid.NewGuid().ToString(),
-                CategoryName = c.CategoryName,
-                SubCategories = c.SubCategories?.Select(sc => new CategoryEntity
-                {
-                    Id = sc.Id ?? Guid.NewGuid().ToString(),
-                    CategoryName = sc.CategoryName
-                }).ToList() ?? new List<CategoryEntity>()
-            }).ToList() ?? new List<CategoryEntity>(),
-
-            Materials = request.Materials?.Select(m => new MaterialEntity
-            {
-                Id = m.Id ?? Guid.NewGuid().ToString(),
                 MaterialName = m.MaterialName
             }).ToList() ?? new List<MaterialEntity>()
         };
@@ -93,20 +53,17 @@ public static class ProductFactory
             ProductImage = entity.ProductImage,
             Categories = entity.Categories?.Select(c => new Category
             {
-                Id = c.Id,
                 CategoryName = c.CategoryName,
                 SubCategories = c.SubCategories?.Select(sc => new Category
                 {
-                    Id = sc.Id,
                     CategoryName = sc.CategoryName
                 }).ToList()
             }).ToList(),
             Materials = entity.Materials?.Select(m => new Material
             {
-                Id = m.Id,
                 MaterialName = m.MaterialName
             }).ToList()
         };
     }
-
 }
+

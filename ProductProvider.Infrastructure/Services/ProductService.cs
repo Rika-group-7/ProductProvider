@@ -79,13 +79,14 @@ namespace ProductProvider.Infrastructure.Services
                 throw;
             }
         }
-
         public async Task<Product> UpdateProductAsync(ProductUpdateRequest request)
         {
             await using var context = _contextFactory.CreateDbContext();
             try
             {
+                // Fetch the existing product without tracking
                 var existingProduct = await context.Products
+                    .AsNoTracking()  // Avoid tracking to prevent conflicts
                     .Include(p => p.Categories)
                     .Include(p => p.Materials)
                     .FirstOrDefaultAsync(p => p.Id == request.Id);
@@ -96,99 +97,46 @@ namespace ProductProvider.Infrastructure.Services
                     return null!;
                 }
 
-                // Update main product fields only if they are non-null in the request
-                if (request.Title != null) existingProduct.Title = request.Title;
-                if (request.Brand != null) existingProduct.Brand = request.Brand;
-                if (request.Size != null) existingProduct.Size = request.Size;
-                if (request.Color != null) existingProduct.Color = request.Color;
-                if (request.Price != 0) existingProduct.Price = request.Price;  
-                if (request.Description != null) existingProduct.Description = request.Description;
-                existingProduct.StockStatus = request.StockStatus;  
-                if (request.SKU != null) existingProduct.SKU = request.SKU;
-                if (request.Ratings != 0) existingProduct.Ratings = request.Ratings;  
-                if (request.ProductImage != null) existingProduct.ProductImage = request.ProductImage;
+                // Clear owned entities to prevent tracking conflicts
+                existingProduct.Categories = null;
+                existingProduct.Materials = null;
 
-                // Update Categories without adding duplicates by name and without setting null values
-                if (request.Categories != null)
+                // Update main product fields with values from the request or keep existing ones
+                existingProduct.Title = request.Title ?? existingProduct.Title;
+                existingProduct.Brand = request.Brand ?? existingProduct.Brand;
+                existingProduct.Size = request.Size ?? existingProduct.Size;
+                existingProduct.Color = request.Color ?? existingProduct.Color;
+                existingProduct.Price = request.Price != 0 ? request.Price : existingProduct.Price;
+                existingProduct.Description = request.Description ?? existingProduct.Description;
+                existingProduct.StockStatus = request.StockStatus;
+                existingProduct.SKU = request.SKU ?? existingProduct.SKU;
+                existingProduct.Ratings = request.Ratings != 0 ? request.Ratings : existingProduct.Ratings;
+                existingProduct.ProductImage = request.ProductImage ?? existingProduct.ProductImage;
+
+                // Assign new categories from the request
+                existingProduct.Categories = request.Categories!.Select(c => new CategoryEntity
                 {
-                    foreach (var categoryRequest in request.Categories)
+                    CategoryName = c.CategoryName,
+                    SubCategories = c.SubCategories?.Select(sc => new CategoryEntity
                     {
-                        var existingCategory = existingProduct.Categories!
-                            .FirstOrDefault(c => (c.Id == categoryRequest.Id && categoryRequest.Id != null)
-                                                 || c.CategoryName == categoryRequest.CategoryName);
+                        CategoryName = sc.CategoryName
+                    }).ToList() ?? new List<CategoryEntity>()
+                }).ToList();
 
-                        if (existingCategory != null)
-                        {
-                            // Update existing category name if provided
-                            if (categoryRequest.CategoryName != null)
-                                existingCategory.CategoryName = categoryRequest.CategoryName;
-
-                            // Update SubCategories, avoiding duplicates by name and null updates
-                            foreach (var subCategoryRequest in categoryRequest.SubCategories ?? new List<ProductUpdateRequest.CategoryUpdateRequest>())
-                            {
-                                var existingSubCategory = existingCategory.SubCategories!
-                                    .FirstOrDefault(sc => (sc.Id == subCategoryRequest.Id && subCategoryRequest.Id != null)
-                                                          || sc.CategoryName == subCategoryRequest.CategoryName);
-
-                                if (existingSubCategory != null)
-                                {
-                                    if (subCategoryRequest.CategoryName != null)
-                                        existingSubCategory.CategoryName = subCategoryRequest.CategoryName;
-                                }
-                                else
-                                {
-                                    existingCategory.SubCategories!.Add(new CategoryEntity
-                                    {
-                                        Id = subCategoryRequest.Id ?? Guid.NewGuid().ToString(),
-                                        CategoryName = subCategoryRequest.CategoryName
-                                    });
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Add new category if it doesn't exist by name
-                            existingProduct.Categories!.Add(new CategoryEntity
-                            {
-                                Id = categoryRequest.Id ?? Guid.NewGuid().ToString(),
-                                CategoryName = categoryRequest.CategoryName,
-                                SubCategories = categoryRequest.SubCategories?.Select(sc => new CategoryEntity
-                                {
-                                    Id = sc.Id ?? Guid.NewGuid().ToString(),
-                                    CategoryName = sc.CategoryName
-                                }).ToList() ?? new List<CategoryEntity>()
-                            });
-                        }
-                    }
-                }
-                // Update Materials without adding duplicates by name and without setting null values
-                if (request.Materials != null)
+                // Assign new materials from the request
+                existingProduct.Materials = request.Materials!.Select(m => new MaterialEntity
                 {
-                    foreach (var materialRequest in request.Materials)
-                    {
-                        var existingMaterial = existingProduct.Materials!
-                            .FirstOrDefault(m => (m.Id == materialRequest.Id && materialRequest.Id != null)
-                                                 || m.MaterialName == materialRequest.MaterialName);
+                    MaterialName = m.MaterialName
+                }).ToList();
 
-                        if (existingMaterial != null)
-                        {
-                            if (materialRequest.MaterialName != null)
-                                existingMaterial.MaterialName = materialRequest.MaterialName;
-                        }
-                        else
-                        {
-                            existingProduct.Materials!.Add(new MaterialEntity
-                            {
-                                Id = materialRequest.Id ?? Guid.NewGuid().ToString(),
-                                MaterialName = materialRequest.MaterialName
-                            });
-                        }
-                    }
-                }
+                // Attach the modified product entity to the context
+                context.Products.Update(existingProduct);
 
+                // Save changes
                 await context.SaveChangesAsync();
+
                 _logger.LogInformation($"Product with ID {existingProduct.Id} updated successfully.");
-                return ProductFactory.Create(existingProduct);
+                return ProductFactory.Create(existingProduct); // Convert to output model if needed
             }
             catch (Exception ex)
             {
@@ -196,8 +144,6 @@ namespace ProductProvider.Infrastructure.Services
                 throw;
             }
         }
-
-
 
 
 
