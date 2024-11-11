@@ -101,19 +101,23 @@ namespace ProductProvider.Infrastructure.Services
                 if (request.Brand != null) existingProduct.Brand = request.Brand;
                 if (request.Size != null) existingProduct.Size = request.Size;
                 if (request.Color != null) existingProduct.Color = request.Color;
-                if (request.Price != 0) existingProduct.Price = request.Price;  
+                if (request.Price != 0) existingProduct.Price = request.Price;
                 if (request.Description != null) existingProduct.Description = request.Description;
-                existingProduct.StockStatus = request.StockStatus;  
+                existingProduct.StockStatus = request.StockStatus;
                 if (request.SKU != null) existingProduct.SKU = request.SKU;
-                if (request.Ratings != 0) existingProduct.Ratings = request.Ratings;  
+                if (request.Ratings != 0) existingProduct.Ratings = request.Ratings;
                 if (request.ProductImage != null) existingProduct.ProductImage = request.ProductImage;
 
-                // Update Categories without adding duplicates by name and without setting null values
+                // Update Categories: Remove old ones not in the request, update existing, and add new ones
                 if (request.Categories != null)
                 {
+                    // Remove categories not present in the request
+                    existingProduct.Categories!.RemoveAll(c =>
+                        request.Categories.All(rc => rc.CategoryName != c.CategoryName && rc.Id != c.Id));
+
                     foreach (var categoryRequest in request.Categories)
                     {
-                        var existingCategory = existingProduct.Categories!
+                        var existingCategory = existingProduct.Categories
                             .FirstOrDefault(c => (c.Id == categoryRequest.Id && categoryRequest.Id != null)
                                                  || c.CategoryName == categoryRequest.CategoryName);
 
@@ -123,10 +127,13 @@ namespace ProductProvider.Infrastructure.Services
                             if (categoryRequest.CategoryName != null)
                                 existingCategory.CategoryName = categoryRequest.CategoryName;
 
-                            // Update SubCategories, avoiding duplicates by name and null updates
+                            // Update SubCategories, avoiding duplicates by name and removing missing ones
+                            existingCategory.SubCategories!.RemoveAll(sc =>
+                                categoryRequest.SubCategories!.All(rsc => rsc.CategoryName != sc.CategoryName && rsc.Id != sc.Id));
+
                             foreach (var subCategoryRequest in categoryRequest.SubCategories ?? new List<ProductUpdateRequest.CategoryUpdateRequest>())
                             {
-                                var existingSubCategory = existingCategory.SubCategories!
+                                var existingSubCategory = existingCategory.SubCategories
                                     .FirstOrDefault(sc => (sc.Id == subCategoryRequest.Id && subCategoryRequest.Id != null)
                                                           || sc.CategoryName == subCategoryRequest.CategoryName);
 
@@ -137,7 +144,7 @@ namespace ProductProvider.Infrastructure.Services
                                 }
                                 else
                                 {
-                                    existingCategory.SubCategories!.Add(new CategoryEntity
+                                    existingCategory.SubCategories.Add(new CategoryEntity
                                     {
                                         Id = subCategoryRequest.Id ?? Guid.NewGuid().ToString(),
                                         CategoryName = subCategoryRequest.CategoryName
@@ -148,7 +155,7 @@ namespace ProductProvider.Infrastructure.Services
                         else
                         {
                             // Add new category if it doesn't exist by name
-                            existingProduct.Categories!.Add(new CategoryEntity
+                            existingProduct.Categories.Add(new CategoryEntity
                             {
                                 Id = categoryRequest.Id ?? Guid.NewGuid().ToString(),
                                 CategoryName = categoryRequest.CategoryName,
@@ -161,12 +168,18 @@ namespace ProductProvider.Infrastructure.Services
                         }
                     }
                 }
-                // Update Materials without adding duplicates by name and without setting null values
+
+                // Update Materials: Remove old ones not in the request, update existing, and add new ones
                 if (request.Materials != null)
                 {
+                    // Remove materials not present in the request
+                    existingProduct.Materials!.RemoveAll(m =>
+                        request.Materials.All(rm => rm.MaterialName != m.MaterialName && rm.Id != m.Id));
+
+                    // Update or add materials
                     foreach (var materialRequest in request.Materials)
                     {
-                        var existingMaterial = existingProduct.Materials!
+                        var existingMaterial = existingProduct.Materials
                             .FirstOrDefault(m => (m.Id == materialRequest.Id && materialRequest.Id != null)
                                                  || m.MaterialName == materialRequest.MaterialName);
 
@@ -177,7 +190,7 @@ namespace ProductProvider.Infrastructure.Services
                         }
                         else
                         {
-                            existingProduct.Materials!.Add(new MaterialEntity
+                            existingProduct.Materials.Add(new MaterialEntity
                             {
                                 Id = materialRequest.Id ?? Guid.NewGuid().ToString(),
                                 MaterialName = materialRequest.MaterialName
@@ -196,6 +209,7 @@ namespace ProductProvider.Infrastructure.Services
                 throw;
             }
         }
+
 
 
 
