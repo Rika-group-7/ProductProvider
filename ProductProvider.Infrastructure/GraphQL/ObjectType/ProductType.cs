@@ -27,7 +27,6 @@ public class ProductType : ObjectType<ProductEntity>
     {
         protected override void Configure(IObjectTypeDescriptor<CategoryEntity> descriptor)
         {
-            descriptor.Field(c => c.Id).Type<NonNullType<IdType>>(); // Adjusted for Cosmos DB
             descriptor.Field(c => c.CategoryName).Type<StringType>();
             descriptor.Field(c => c.SubCategories).Type<ListType<CategoryType>>();
         }
@@ -37,7 +36,6 @@ public class ProductType : ObjectType<ProductEntity>
     {
         protected override void Configure(IObjectTypeDescriptor<MaterialEntity> descriptor)
         {
-            descriptor.Field(m => m.Id).Type<NonNullType<IdType>>(); // Adjusted for Cosmos DB
             descriptor.Field(m => m.MaterialName).Type<StringType>();
         }
     }

@@ -26,17 +26,10 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
         modelBuilder.Entity<ProductEntity>()
             .OwnsMany(p => p.Categories, cb =>
             {
-                cb.HasKey(c => c.Id);
-                cb.OwnsMany(c => c.SubCategories, scb =>
-                {
-                    scb.HasKey(sc => sc.Id);
-                });
+                cb.OwnsMany(c => c.SubCategories);
             });
 
-        modelBuilder.Entity<ProductEntity>().OwnsMany(p => p.Materials, mb =>
-        {
-            mb.HasKey(m => m.Id);
-        });
+        modelBuilder.Entity<ProductEntity>().OwnsMany(p => p.Materials);
     }
 
 

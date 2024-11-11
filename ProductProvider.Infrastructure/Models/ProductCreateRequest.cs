@@ -19,14 +19,12 @@ public class ProductCreateRequest
 
     public class CategoryCreateRequest
     {
-        public string? Id { get; set; }
         public string? CategoryName { get; set; }
         public List<CategoryCreateRequest>? SubCategories { get; set; } = new();
     }
 
     public class MaterialCreateRequest
     {
-        public string? Id { get; set; }
         public string? MaterialName { get; set; }
     }
 }

@@ -16,6 +16,6 @@ public class ProductEntity
     public decimal Ratings { get; set; }
     public string? ProductImage { get; set; }
 
-    public virtual List<CategoryEntity>? Categories { get; set; } = new();
-    public virtual List<MaterialEntity>? Materials { get; set; } = new();  
+    public virtual List<CategoryEntity> Categories { get; set; } = new();
+    public virtual List<MaterialEntity> Materials { get; set; } = new();
 }
